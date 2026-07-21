@@ -1,0 +1,65 @@
+/* DotCanvas Custom Styles - iPad Minimalist Monotone UI */
+
+/* Touch & Gesture locks for iPad mini */
+html, body {
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    overscroll-behavior: none;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+::-webkit-scrollbar-track {
+    background: #09090b;
+}
+::-webkit-scrollbar-thumb {
+    background: #27272a;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #3f3f46;
+}
+
+/* Sharp boxy edges enforcement */
+*, ::before, ::after {
+    border-radius: 0 !important;
+}
+
+/* Custom Native Vertical Range Input */
+.input-vertical-range {
+    -webkit-appearance: none;
+    appearance: none;
+    writing-mode: vertical-lr;
+    direction: rtl;
+    background: #27272a;
+    width: 8px;
+    height: 100%;
+}
+.input-vertical-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 12px;
+    background: #f4f4f5;
+    cursor: pointer;
+    border: none;
+}
+
+/* Pixel art canvas rendering */
+.canvas-pixelated {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+/* Smooth scaling reference image */
+.img-reference {
+    image-rendering: auto;
+    image-rendering: smooth;
+    pointer-events: none;
+    user-select: none;
+}
