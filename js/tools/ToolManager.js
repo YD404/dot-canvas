@@ -2,7 +2,6 @@ import { PenTool } from './PenTool.js';
 import { DotTool } from './DotTool.js';
 import { EraserTool } from './EraserTool.js';
 import { FillTool } from './FillTool.js';
-import { EyedropperTool } from './EyedropperTool.js';
 import { LineTool } from './LineTool.js';
 import { RectTool } from './RectTool.js';
 import { HandTool } from './HandTool.js';
@@ -28,7 +27,6 @@ export class ToolManager {
         this.registerTool(new DotTool());
         this.registerTool(new EraserTool());
         this.registerTool(new FillTool());
-        this.registerTool(new EyedropperTool());
         this.registerTool(new LineTool());
         this.registerTool(new RectTool());
         this.registerTool(new HandTool());

@@ -130,7 +130,7 @@
                     <div>
                         <span class="font-bold text-neutral-400 block mb-2">CURRENT COLOR</span>
                         <div class="flex items-center space-x-2">
-                            <div id="color-preview" class="w-10 h-10 border border-neutral-600 bg-black"></div>
+                            <div id="color-preview" class="w-10 h-10 border border-neutral-600 bg-black cursor-pointer hover:border-neutral-400 transition-colors" title="カラーピッカーを開く"></div>
                             <div class="flex-1">
                                 <label class="text-[10px] text-neutral-500 block">HEX COLOR</label>
                                 <input type="text" id="input-color-hex" value="#000000" class="w-full bg-neutral-950 border border-neutral-700 px-2 py-1 font-mono text-neutral-100 uppercase focus:outline-none focus:border-neutral-400">
@@ -143,8 +143,20 @@
                         <input type="color" id="native-color-picker" class="w-full h-8 bg-neutral-950 border border-neutral-700 cursor-pointer p-0">
                     </div>
 
+                    <!-- Canvas Background Color -->
+                    <div class="pt-2 border-t border-neutral-800">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="font-bold text-neutral-400">CANVAS BG COLOR</span>
+                            <button id="btn-bg-checkerboard" class="text-[10px] px-1.5 py-0.5 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-neutral-300">透明(格子)</button>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="color" id="input-bg-color" value="#18181b" class="w-8 h-8 bg-neutral-950 border border-neutral-700 cursor-pointer p-0">
+                            <input type="text" id="input-bg-color-hex" value="透明" readonly class="flex-1 bg-neutral-950 border border-neutral-700 px-2 py-1 font-mono text-neutral-400 text-xs focus:outline-none">
+                        </div>
+                    </div>
+
                     <!-- Palette -->
-                    <div>
+                    <div class="pt-2 border-t border-neutral-800">
                         <div class="flex items-center justify-between mb-1.5">
                             <span class="font-bold text-neutral-400">SWATCHES</span>
                             <button id="btn-add-swatch" class="text-[10px] px-1.5 py-0.5 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-neutral-300">+ 色保存</button>
@@ -153,12 +165,36 @@
                             <!-- Swatches rendered by JS -->
                         </div>
                     </div>
+
+                    <!-- Color Harmonies -->
+                    <div class="pt-2 border-t border-neutral-800 space-y-3">
+                        <span class="font-bold text-neutral-400 block">COLOR HARMONIES</span>
+
+                        <div>
+                            <span class="text-[10px] text-neutral-500 block mb-1">Monochromatic</span>
+                            <div id="harmony-monochromatic" class="grid grid-cols-5 gap-1.5 p-1 bg-neutral-950 border border-neutral-800"></div>
+                        </div>
+
+                        <div>
+                            <span class="text-[10px] text-neutral-500 block mb-1">Analogous</span>
+                            <div id="harmony-analogous" class="grid grid-cols-3 gap-1.5 p-1 bg-neutral-950 border border-neutral-800"></div>
+                        </div>
+
+                        <div>
+                            <span class="text-[10px] text-neutral-500 block mb-1">Split-Complementary</span>
+                            <div id="harmony-split" class="grid grid-cols-3 gap-1.5 p-1 bg-neutral-950 border border-neutral-800"></div>
+                        </div>
+
+                        <div>
+                            <span class="text-[10px] text-neutral-500 block mb-1">Triadic</span>
+                            <div id="harmony-triadic" class="grid grid-cols-3 gap-1.5 p-1 bg-neutral-950 border border-neutral-800"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Section 3: Reference Image Panel -->
                 <div id="panel-ref-content" class="space-y-4 hidden">
                     <span class="font-bold text-neutral-400 block mb-1">REFERENCE IMAGE</span>
-                    <p class="text-[11px] text-neutral-400 leading-tight bg-neutral-950 p-2 border border-neutral-800">💡 「下絵」タブが選択されている間は、キャンバス上を1本指でドラッグして下絵の位置を自由に移動できます。</p>
 
                     <div class="space-y-2">
                         <button id="btn-load-ref" class="w-full py-1.5 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-neutral-200">下絵を選択...</button>

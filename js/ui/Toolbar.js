@@ -10,7 +10,6 @@ export class Toolbar {
             { id: 'dot', title: '点打ち (D)', icon: Icons.dot },
             { id: 'eraser', title: '消しゴム (E)', icon: Icons.eraser },
             { id: 'fill', title: 'バケツ塗り (F)', icon: Icons.fill },
-            { id: 'eyedropper', title: 'スポイト (I)', icon: Icons.eyedropper },
             { id: 'line', title: '直線 (L)', icon: Icons.line },
             { id: 'rect', title: '矩形 (R)', icon: Icons.rect },
             { id: 'hand', title: '手のひら / 画面移動 (H)', icon: Icons.hand }

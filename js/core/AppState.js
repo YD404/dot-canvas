@@ -15,11 +15,18 @@ export class AppState {
         this.panX = 0;
         this.panY = 0;
         this.showGrid = true;
+        this.backgroundColor = 'transparent'; // 'transparent' (checkerboard) or HEX color string
         this.palette = [
             '#000000', '#FFFFFF', '#737373', '#D4D4D4',
             '#EF4444', '#F97316', '#F59E0B', '#10B981',
             '#06B6D4', '#3B82F6', '#6366F1', '#8B5CF6'
         ];
+    }
+
+    setBackgroundColor(color) {
+        if (this.backgroundColor === color) return;
+        this.backgroundColor = color;
+        globalEventBus.emit('state:bgColorChanged', this.backgroundColor);
     }
 
     setCanvasSize(width, height) {

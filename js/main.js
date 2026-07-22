@@ -43,6 +43,7 @@ class Application {
         globalEventBus.on('viewport:changed', () => this.requestRender());
         globalEventBus.on('refImage:changed', () => this.requestRender());
         globalEventBus.on('refImage:updated', () => this.requestRender());
+        globalEventBus.on('state:bgColorChanged', () => this.requestRender());
 
         globalEventBus.on('canvas:sizeApplied', ({ width, height }) => {
             this.canvasManager.resizeCanvases(width, height);

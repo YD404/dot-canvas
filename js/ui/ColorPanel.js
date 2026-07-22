@@ -9,13 +9,26 @@ export class ColorPanel {
         this.paletteGridEl = document.getElementById('palette-grid');
         this.addSwatchBtn = document.getElementById('btn-add-swatch');
 
+        // Background Color elements
+        this.bgColorInput = document.getElementById('input-bg-color');
+        this.bgColorHexInput = document.getElementById('input-bg-color-hex');
+        this.bgCheckerboardBtn = document.getElementById('btn-bg-checkerboard');
+
+        // Color Harmonies elements
+        this.harmonyMonoEl = document.getElementById('harmony-monochromatic');
+        this.harmonyAnalogousEl = document.getElementById('harmony-analogous');
+        this.harmonySplitEl = document.getElementById('harmony-split');
+        this.harmonyTriadicEl = document.getElementById('harmony-triadic');
+
         this.init();
         this.bindEvents();
     }
 
     init() {
         this.updateUI(appState.primaryColor);
+        this.updateBgUI(appState.backgroundColor);
         this.renderPalette(appState.palette);
+        this.renderHarmonies(appState.primaryColor);
     }
 
     updateUI(hex) {
@@ -24,6 +37,18 @@ export class ColorPanel {
             this.hexInputEl.value = hex;
         }
         if (this.nativePickerEl) this.nativePickerEl.value = hex.slice(0, 7);
+        this.renderHarmonies(hex);
+    }
+
+    updateBgUI(color) {
+        if (!this.bgColorInput || !this.bgColorHexInput) return;
+        if (!color || color === 'transparent') {
+            this.bgColorHexInput.value = '透明 (格子)';
+            this.bgColorInput.value = '#18181b';
+        } else {
+            this.bgColorHexInput.value = color.toUpperCase();
+            this.bgColorInput.value = color.slice(0, 7);
+        }
     }
 
     renderPalette(paletteList) {
@@ -45,7 +70,75 @@ export class ColorPanel {
         });
     }
 
+    renderHarmonies(primaryHex) {
+        const [h, s, l] = this.hexToHsl(primaryHex);
+
+        // 1. Monochromatic (5 variations of lightness)
+        const monoColors = [
+            this.hslToHex(h, s, Math.max(10, l - 35)),
+            this.hslToHex(h, s, Math.max(15, l - 18)),
+            primaryHex.toUpperCase(),
+            this.hslToHex(h, s, Math.min(90, l + 18)),
+            this.hslToHex(h, s, Math.min(95, l + 35))
+        ];
+
+        // 2. Analogous (-30°, 0°, +30°)
+        const analogousColors = [
+            this.hslToHex(h - 30, s, l),
+            primaryHex.toUpperCase(),
+            this.hslToHex(h + 30, s, l)
+        ];
+
+        // 3. Split-Complementary (0°, +150°, +210°)
+        const splitColors = [
+            primaryHex.toUpperCase(),
+            this.hslToHex(h + 150, s, l),
+            this.hslToHex(h + 210, s, l)
+        ];
+
+        // 4. Triadic (-120°, 0°, +120°)
+        const triadicColors = [
+            this.hslToHex(h - 120, s, l),
+            primaryHex.toUpperCase(),
+            this.hslToHex(h + 120, s, l)
+        ];
+
+        this.renderHarmonyGroup(this.harmonyMonoEl, monoColors);
+        this.renderHarmonyGroup(this.harmonyAnalogousEl, analogousColors);
+        this.renderHarmonyGroup(this.harmonySplitEl, splitColors);
+        this.renderHarmonyGroup(this.harmonyTriadicEl, triadicColors);
+    }
+
+    renderHarmonyGroup(containerEl, colors) {
+        if (!containerEl) return;
+        containerEl.innerHTML = '';
+        colors.forEach(hex => {
+            const btn = document.createElement('button');
+            btn.className = 'h-6 border border-neutral-700 hover:scale-105 transition-transform relative';
+            btn.style.backgroundColor = hex;
+            btn.title = hex;
+            if (hex.toUpperCase() === appState.primaryColor.toUpperCase()) {
+                btn.classList.add('ring-2', 'ring-neutral-100', 'z-10');
+            }
+            btn.addEventListener('click', () => appState.setPrimaryColor(hex));
+            containerEl.appendChild(btn);
+        });
+    }
+
     bindEvents() {
+        // Color Preview click -> open native picker
+        if (this.previewEl) {
+            this.previewEl.addEventListener('click', () => {
+                if (this.nativePickerEl) {
+                    if (typeof this.nativePickerEl.showPicker === 'function') {
+                        this.nativePickerEl.showPicker();
+                    } else {
+                        this.nativePickerEl.click();
+                    }
+                }
+            });
+        }
+
         // HEX text input
         if (this.hexInputEl) {
             this.hexInputEl.addEventListener('change', (e) => {
@@ -66,6 +159,20 @@ export class ColorPanel {
             });
         }
 
+        // Background Color Picker
+        if (this.bgColorInput) {
+            this.bgColorInput.addEventListener('input', (e) => {
+                appState.setBackgroundColor(e.target.value);
+            });
+        }
+
+        // Background Checkerboard (Transparent) Button
+        if (this.bgCheckerboardBtn) {
+            this.bgCheckerboardBtn.addEventListener('click', () => {
+                appState.setBackgroundColor('transparent');
+            });
+        }
+
         // Add Swatch button
         if (this.addSwatchBtn) {
             this.addSwatchBtn.addEventListener('click', () => {
@@ -78,8 +185,62 @@ export class ColorPanel {
             this.renderPalette(appState.palette);
         });
 
+        globalEventBus.on('state:bgColorChanged', (color) => {
+            this.updateBgUI(color);
+        });
+
         globalEventBus.on('state:paletteChanged', (palette) => {
             this.renderPalette(palette);
         });
+    }
+
+    // Color conversion helpers: HEX <-> HSL
+    hexToHsl(hex) {
+        let c = hex.replace('#', '');
+        if (c.length === 3) c = c.split('').map(x => x + x).join('');
+        const r = parseInt(c.substring(0, 2), 16) / 255;
+        const g = parseInt(c.substring(2, 4), 16) / 255;
+        const b = parseInt(c.substring(4, 6), 16) / 255;
+
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h = 0, s = 0, l = (max + min) / 2;
+
+        if (max !== min) {
+            const d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            h /= 6;
+        }
+
+        return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+    }
+
+    hslToHex(h, s, l) {
+        h = (h % 360 + 360) % 360;
+        s = Math.max(0, Math.min(100, s)) / 100;
+        l = Math.max(0, Math.min(100, l)) / 100;
+
+        const c = (1 - Math.abs(2 * l - 1)) * s;
+        const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+        const m = l - c / 2;
+        let r = 0, g = 0, b = 0;
+
+        if (0 <= h && h < 60) { r = c; g = x; b = 0; }
+        else if (60 <= h && h < 120) { r = x; g = c; b = 0; }
+        else if (120 <= h && h < 180) { r = 0; g = c; b = x; }
+        else if (180 <= h && h < 240) { r = 0; g = x; b = c; }
+        else if (240 <= h && h < 300) { r = x; g = 0; b = c; }
+        else if (300 <= h && h < 360) { r = c; g = 0; b = x; }
+
+        const toHex = (val) => {
+            const hexVal = Math.round((val + m) * 255).toString(16);
+            return hexVal.length === 1 ? '0' + hexVal : hexVal;
+        };
+
+        return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
     }
 }

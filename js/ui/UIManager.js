@@ -164,7 +164,6 @@ export class UIManager {
                 case 'd': appState.setActiveTool('dot'); break;
                 case 'e': appState.setActiveTool('eraser'); break;
                 case 'f': appState.setActiveTool('fill'); break;
-                case 'i': appState.setActiveTool('eyedropper'); break;
                 case 'l': appState.setActiveTool('line'); break;
                 case 'r': appState.setActiveTool('rect'); break;
                 case 'h': appState.setActiveTool('hand'); break;

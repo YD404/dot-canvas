@@ -1,9 +1,19 @@
+import { appState } from '../core/AppState.js';
+
 /**
- * BackgroundRenderer - Renders transparent checkerboard pattern onto bottom-most bgCanvas
+ * BackgroundRenderer - Renders background color or transparent checkerboard pattern onto bottom-most bgCanvas
  */
 export class BackgroundRenderer {
     static render(ctx, width, height) {
         ctx.clearRect(0, 0, width, height);
+        
+        const bgColor = appState.backgroundColor;
+        if (bgColor && bgColor !== 'transparent') {
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, width, height);
+            return;
+        }
+
         const tileSize = 4;
         for (let y = 0; y < height; y += tileSize) {
             for (let x = 0; x < width; x += tileSize) {
