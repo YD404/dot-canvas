@@ -59,6 +59,12 @@ export class ReferenceImageManager {
         globalEventBus.emit('refImage:changed', this.getSummary());
     }
 
+    toggleVisibility() {
+        this.visible = !this.visible;
+        globalEventBus.emit('refImage:updated', this.getSummary());
+        return this.visible;
+    }
+
     setOpacity(val) {
         this.opacity = Math.max(0, Math.min(1, val));
         globalEventBus.emit('refImage:updated', this.getSummary());

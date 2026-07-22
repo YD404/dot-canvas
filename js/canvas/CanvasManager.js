@@ -104,6 +104,29 @@ export class CanvasManager {
         }
     }
 
+    toggleZoomFitCenter() {
+        const containerRect = this.container.getBoundingClientRect();
+        if (!containerRect.width || !containerRect.height) return;
+
+        this.resizeOverlayScreen();
+
+        const padding = 60;
+        const scaleX = (containerRect.width - padding) / appState.width;
+        const scaleY = (containerRect.height - padding) / appState.height;
+        const fitZoom = Math.max(1, Math.min(64, Math.floor(Math.min(scaleX, scaleY))));
+
+        if (this.zoom === fitZoom) {
+            this.zoom = 1;
+        } else {
+            this.zoom = fitZoom;
+        }
+
+        this.panX = Math.round((containerRect.width - appState.width * this.zoom) / 2);
+        this.panY = Math.round((containerRect.height - appState.height * this.zoom) / 2);
+
+        this.updateTransform();
+    }
+
     centerCanvas() {
         const containerRect = this.container.getBoundingClientRect();
         if (!containerRect.width || !containerRect.height) return;

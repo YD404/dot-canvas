@@ -61,6 +61,9 @@ export class ToolManager {
 
             if (this.activeTool) {
                 this.activeTool.onPointerDown(e, this.layerManager, appState);
+                if (['pen', 'dot', 'fill', 'line', 'rect'].includes(this.activeTool.name) && !e.outOfBounds) {
+                    appState.addColorHistory(appState.primaryColor);
+                }
                 globalEventBus.emit('canvas:requestRender');
             }
         });

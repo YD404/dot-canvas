@@ -10,6 +10,7 @@ import { PixelRenderer } from './canvas/PixelRenderer.js';
 import { OverlayRenderer } from './canvas/OverlayRenderer.js';
 import { ToolManager } from './tools/ToolManager.js';
 import { UIManager } from './ui/UIManager.js';
+import { initPWA } from './ui/pwa-installer.js';
 
 class Application {
     constructor() {
@@ -19,6 +20,9 @@ class Application {
     }
 
     init() {
+        // 0. Initialize PWA & ServiceWorker
+        initPWA();
+
         // 1. Data Layer Manager
         this.layerManager = new LayerManager(appState.width, appState.height);
 
@@ -44,6 +48,10 @@ class Application {
         globalEventBus.on('refImage:changed', () => this.requestRender());
         globalEventBus.on('refImage:updated', () => this.requestRender());
         globalEventBus.on('state:bgColorChanged', () => this.requestRender());
+        globalEventBus.on('canvas:toggleZoomFit', () => {
+            this.canvasManager.toggleZoomFitCenter();
+            this.requestRender();
+        });
 
         globalEventBus.on('canvas:sizeApplied', ({ width, height }) => {
             this.canvasManager.resizeCanvases(width, height);

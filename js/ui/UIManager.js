@@ -1,3 +1,5 @@
+import { Icons } from './Icons.js';
+import { referenceImageManager } from '../data/ReferenceImageManager.js';
 import { Toolbar } from './Toolbar.js';
 import { ColorPanel } from './ColorPanel.js';
 import { LayerPanel } from './LayerPanel.js';
@@ -68,6 +70,35 @@ export class UIManager {
             if (btnUndo) btnUndo.disabled = !canUndo;
             if (btnRedo) btnRedo.disabled = !canRedo;
         });
+
+        // Ref Image Visibility Toggle Button (Eye Icon)
+        const btnToggleRef = document.getElementById('btn-toggle-ref-visibility');
+        if (btnToggleRef) {
+            const updateRefIcon = (summary) => {
+                const isVisible = summary ? summary.visible : referenceImageManager.visible;
+                btnToggleRef.innerHTML = isVisible ? Icons.eye : Icons.eyeOff;
+                btnToggleRef.className = `p-1 hover:bg-neutral-800 active:bg-neutral-700 ${
+                    isVisible ? 'text-neutral-100' : 'text-neutral-500'
+                }`;
+            };
+            updateRefIcon();
+            btnToggleRef.addEventListener('click', () => {
+                const visible = referenceImageManager.toggleVisibility();
+                updateRefIcon({ visible });
+                globalEventBus.emit('canvas:requestRender');
+            });
+            globalEventBus.on('refImage:updated', (sum) => updateRefIcon(sum));
+            globalEventBus.on('refImage:changed', (sum) => updateRefIcon(sum));
+        }
+
+        // Zoom Fit Toggle Button (Search / Magnifier Icon)
+        const btnToggleZoom = document.getElementById('btn-toggle-zoom-fit');
+        if (btnToggleZoom) {
+            btnToggleZoom.innerHTML = Icons.search;
+            btnToggleZoom.addEventListener('click', () => {
+                globalEventBus.emit('canvas:toggleZoomFit');
+            });
+        }
 
         // Save Project (.dotcanvas)
         const btnSaveProj = document.getElementById('btn-save-project');

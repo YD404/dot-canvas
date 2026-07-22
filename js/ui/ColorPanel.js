@@ -1,5 +1,6 @@
 import { appState } from '../core/AppState.js';
 import { globalEventBus } from '../core/EventBus.js';
+import { Icons } from './Icons.js';
 
 export class ColorPanel {
     constructor() {
@@ -7,7 +8,7 @@ export class ColorPanel {
         this.hexInputEl = document.getElementById('input-color-hex');
         this.nativePickerEl = document.getElementById('native-color-picker');
         this.paletteGridEl = document.getElementById('palette-grid');
-        this.addSwatchBtn = document.getElementById('btn-add-swatch');
+        this.colorHistoryGridEl = document.getElementById('color-history-grid');
 
         // Background Color elements
         this.bgColorInput = document.getElementById('input-bg-color');
@@ -28,6 +29,7 @@ export class ColorPanel {
         this.updateUI(appState.primaryColor);
         this.updateBgUI(appState.backgroundColor);
         this.renderPalette(appState.palette);
+        this.renderColorHistory(appState.colorHistory);
         this.renderHarmonies(appState.primaryColor);
     }
 
@@ -38,6 +40,8 @@ export class ColorPanel {
         }
         if (this.nativePickerEl) this.nativePickerEl.value = hex.slice(0, 7);
         this.renderHarmonies(hex);
+        this.renderPalette(appState.palette);
+        this.renderColorHistory(appState.colorHistory);
     }
 
     updateBgUI(color) {
@@ -55,7 +59,76 @@ export class ColorPanel {
         if (!this.paletteGridEl) return;
         this.paletteGridEl.innerHTML = '';
 
+        // Cell 1: Add Swatch (+) Button
+        const addBtn = document.createElement('button');
+        addBtn.className = 'w-7 h-7 border border-dashed border-neutral-600 bg-neutral-900 hover:bg-neutral-800 hover:border-neutral-400 text-neutral-400 hover:text-neutral-100 flex items-center justify-center shrink-0 relative transition-colors';
+        addBtn.title = '現在の色を保存';
+        addBtn.innerHTML = Icons.plus;
+        addBtn.addEventListener('click', () => appState.addSwatch(appState.primaryColor));
+        this.paletteGridEl.appendChild(addBtn);
+
+        // Saved Swatches
         paletteList.forEach(hex => {
+            const swatch = document.createElement('button');
+            swatch.className = 'w-7 h-7 border border-neutral-700 hover:scale-105 transition-transform shrink-0 relative select-none touch-none';
+            swatch.style.backgroundColor = hex;
+            swatch.title = `${hex} (長押しで削除)`;
+
+            if (hex.toUpperCase() === appState.primaryColor.toUpperCase()) {
+                swatch.classList.add('ring-2', 'ring-neutral-100', 'z-10');
+            }
+
+            let longPressTimer = null;
+            let isLongPressTriggered = false;
+
+            const startPress = () => {
+                isLongPressTriggered = false;
+                longPressTimer = setTimeout(() => {
+                    isLongPressTriggered = true;
+                    if (confirm(`このスウォッチ (${hex}) を削除しますか？`)) {
+                        appState.removeSwatch(hex);
+                    }
+                }, 500);
+            };
+
+            const cancelPress = () => {
+                if (longPressTimer) {
+                    clearTimeout(longPressTimer);
+                    longPressTimer = null;
+                }
+            };
+
+            swatch.addEventListener('pointerdown', startPress);
+            swatch.addEventListener('pointerup', cancelPress);
+            swatch.addEventListener('pointerleave', cancelPress);
+            swatch.addEventListener('pointercancel', cancelPress);
+
+            swatch.addEventListener('click', (e) => {
+                if (isLongPressTriggered) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+                appState.setPrimaryColor(hex);
+            });
+
+            this.paletteGridEl.appendChild(swatch);
+        });
+    }
+
+    renderColorHistory(historyList) {
+        if (!this.colorHistoryGridEl) return;
+        this.colorHistoryGridEl.innerHTML = '';
+
+        if (!historyList || historyList.length === 0) {
+            const emptyLabel = document.createElement('span');
+            emptyLabel.className = 'col-span-6 text-[10px] text-neutral-600 py-1 text-center block';
+            emptyLabel.textContent = '描画色履歴なし';
+            this.colorHistoryGridEl.appendChild(emptyLabel);
+            return;
+        }
+
+        historyList.slice(0, 12).forEach(hex => {
             const swatch = document.createElement('button');
             swatch.className = 'w-7 h-7 border border-neutral-700 hover:scale-105 transition-transform shrink-0 relative';
             swatch.style.backgroundColor = hex;
@@ -66,7 +139,7 @@ export class ColorPanel {
             }
 
             swatch.addEventListener('click', () => appState.setPrimaryColor(hex));
-            this.paletteGridEl.appendChild(swatch);
+            this.colorHistoryGridEl.appendChild(swatch);
         });
     }
 
@@ -173,16 +246,8 @@ export class ColorPanel {
             });
         }
 
-        // Add Swatch button
-        if (this.addSwatchBtn) {
-            this.addSwatchBtn.addEventListener('click', () => {
-                appState.addSwatch(appState.primaryColor);
-            });
-        }
-
         globalEventBus.on('state:colorChanged', (hex) => {
             this.updateUI(hex);
-            this.renderPalette(appState.palette);
         });
 
         globalEventBus.on('state:bgColorChanged', (color) => {
@@ -191,6 +256,10 @@ export class ColorPanel {
 
         globalEventBus.on('state:paletteChanged', (palette) => {
             this.renderPalette(palette);
+        });
+
+        globalEventBus.on('state:colorHistoryChanged', (history) => {
+            this.renderColorHistory(history);
         });
     }
 

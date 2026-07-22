@@ -16,11 +16,22 @@ export class AppState {
         this.panY = 0;
         this.showGrid = true;
         this.backgroundColor = 'transparent'; // 'transparent' (checkerboard) or HEX color string
-        this.palette = [
-            '#000000', '#FFFFFF', '#737373', '#D4D4D4',
-            '#EF4444', '#F97316', '#F59E0B', '#10B981',
-            '#06B6D4', '#3B82F6', '#6366F1', '#8B5CF6'
-        ];
+        this.palette = [];
+        this.colorHistory = [];
+    }
+
+    addColorHistory(hex) {
+        if (!hex || hex === 'transparent') return;
+        const formatted = hex.toUpperCase();
+        // Remove existing occurrence if any
+        this.colorHistory = this.colorHistory.filter(c => c !== formatted);
+        // Prepend new color
+        this.colorHistory.unshift(formatted);
+        // Limit to max 12 colors
+        if (this.colorHistory.length > 12) {
+            this.colorHistory = this.colorHistory.slice(0, 12);
+        }
+        globalEventBus.emit('state:colorHistoryChanged', this.colorHistory);
     }
 
     setBackgroundColor(color) {

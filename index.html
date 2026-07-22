@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>DotCanvas</title>
+    <!-- PWA / Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#171717">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="./icons/icon-192.png">
+    <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
     <!-- Tailwind CSS v4 Browser CDN -->
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="./style.css">
@@ -13,7 +21,10 @@
     <!-- Top Header Bar -->
     <header class="h-10 border-b border-neutral-800 bg-neutral-900 flex items-center justify-between px-3 z-20 shrink-0">
         <div class="flex items-center space-x-3">
-            <span class="font-bold tracking-wider text-sm border-r border-neutral-700 pr-3 text-neutral-100">DotCanvas</span>
+            <span class="font-bold tracking-wider text-sm border-r border-neutral-700 pr-3 text-neutral-100 flex items-center space-x-1.5">
+                <img src="./icons/icon.svg" class="w-4 h-4 rounded-xs" alt="Logo">
+                <span>DotCanvas</span>
+            </span>
             
             <!-- Undo / Redo -->
             <div class="flex space-x-1">
@@ -25,6 +36,16 @@
                 </button>
             </div>
             
+            <div class="h-4 w-px bg-neutral-800"></div>
+
+            <!-- View controls: Ref image visibility & Zoom fit toggle -->
+            <div class="flex space-x-1">
+                <button id="btn-toggle-ref-visibility" class="p-1 hover:bg-neutral-800 active:bg-neutral-700 text-neutral-400 hover:text-neutral-100" title="下絵表示/非表示">
+                </button>
+                <button id="btn-toggle-zoom-fit" class="p-1 hover:bg-neutral-800 active:bg-neutral-700 text-neutral-400 hover:text-neutral-100" title="等倍 / 全体表示切り替え">
+                </button>
+            </div>
+
             <div class="h-4 w-px bg-neutral-800"></div>
 
             <!-- Canvas Info & New/Resize -->
@@ -52,6 +73,12 @@
             <button id="btn-export" class="text-xs px-3 py-1 bg-neutral-100 text-neutral-950 font-bold hover:bg-neutral-300 flex items-center space-x-1" title="書き出し">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                 <span>書き出し</span>
+            </button>
+
+            <!-- PWA Install Button -->
+            <button id="btn-pwa-install" class="hidden text-xs px-2.5 py-1 bg-blue-600 text-white font-bold hover:bg-blue-500 items-center space-x-1 border border-blue-500 rounded-xs shadow-xs" title="アプリをインストール">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <span>アプリ化</span>
             </button>
         </div>
     </header>
@@ -155,11 +182,18 @@
                         </div>
                     </div>
 
-                    <!-- Palette -->
+                    <!-- Color History -->
+                    <div class="pt-2 border-t border-neutral-800">
+                        <span class="font-bold text-neutral-400 block mb-1.5">COLOR HISTORY</span>
+                        <div id="color-history-grid" class="grid grid-cols-6 gap-1.5 min-h-[32px] p-1 bg-neutral-950 border border-neutral-800">
+                            <!-- Rendered by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Palette (Swatches with + button as 1st cell) -->
                     <div class="pt-2 border-t border-neutral-800">
                         <div class="flex items-center justify-between mb-1.5">
                             <span class="font-bold text-neutral-400">SWATCHES</span>
-                            <button id="btn-add-swatch" class="text-[10px] px-1.5 py-0.5 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-neutral-300">+ 色保存</button>
                         </div>
                         <div id="palette-grid" class="grid grid-cols-6 gap-1.5 max-h-48 overflow-y-auto p-1 bg-neutral-950 border border-neutral-800">
                             <!-- Swatches rendered by JS -->
