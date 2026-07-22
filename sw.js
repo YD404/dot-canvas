@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dotcanvas-v1.0.0';
+const CACHE_NAME = 'dotcanvas-v1.0.1';
 
 // Files to cache immediately on install
 const PRECACHE_ASSETS = [
